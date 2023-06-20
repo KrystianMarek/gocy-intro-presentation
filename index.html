@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>reveal.js</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/solarized.css">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css">
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+					<section>
+						<img src="assets/happy_cumulus.png" alt="reveal.js logo" style="height: 300px; margin: 0 auto 4rem auto; background: transparent;" class="demo-logo">
+						<h2>DIY Cloud Native Developer Platform</h2>
+						<h3><a href="https://github.com/equinix-labs/talos-on-equinix-metal">talos on equinix metal - a.k.a gocy.org</a></h3>
+					</section>
+					<section>
+						<p>Yet another opinionated private cloud solution</p>
+					</section>
+					<section>
+						<p>Open Source, globally distributed, scalable, secure and performant Cloud Native Developer Platform for Startups and Enterprises on Equinix Metal.</p>
+					</section>
+					<section>
+						<div class="mermaid">
+							<pre>
+							  graph LR
+								subgraph "ManagementCluster"
+									subgraph "MCHardware"
+										subgraph "MCmasters"
+										MCm1(Master1)
+										MCm2(Master2)
+										MCm3(Master3)
+										end
+										subgraph "MCnodes"
+											MCn1(Node1)
+											MCn2(Node2)
+											MCn3(Node3)
+										end
+									end
+									subgraph "MCapps"
+										MC_CP_Endpoint(Control plane endpoint)
+										MCIngress(ingress)
+										MC_VPN(VPN)
+										MC_ClusterAPI(Cluster API)
+									end
+								end
+								subgraph "Workload"
+									subgraph "WorkloadClusterA"
+									subgraph "WCAHrdware"
+										subgraph "WCAnodes"
+											WCAn1(Node1)
+											WCAn2(Node2)
+											WCAn3(Node3)
+										end
+										subgraph "WCAMasters"
+											WCAm1(Master1)
+											WCAm2(Master2)
+											WCAm3(Master3)
+										end
+									end
+									subgraph "WCAapps"
+											WCA_CP_Endpoint(Control plane endpoint)
+											WCAIngress(ingress)
+											WCA_VPN(VPN)
+									end
+								end
+								subgraph "WorkloadClusterB"
+									subgraph "WCBHardware"
+										subgraph "WCBMasters"
+											WCBm1(Master1)
+											WCBm2(Master2)
+											WCBm3(Master3)
+										end
+										subgraph "WCBnodes"
+											WCBn1(Node1)
+											WCBn2(Node2)
+											WCBn3(Node3)
+										end
+									end
+									subgraph "WCBapps"
+										WCB_CP_Endpoint(Control plane endpoint)
+										WCBIngress(ingress)
+										WCB_VPN(VPN)
+									end
+								end
+								end
+
+								MC_VPN(VPN) <--> WCB_VPN(VPN)
+								MC_VPN(VPN) <--> WCA_VPN(VPN)
+
+								admin([admin])-. MetalLB-managed <br> load balancer .->MCIngress[Ingress];
+								admin([admin])-. CPEM-managed <br> load balancer .->MC_CP_Endpoint[Control plane endpoint];
+								admin([admin])-. CPEM-managed <br> load balancer .->WCA_CP_Endpoint[Control plane endpoint];
+								admin([admin])-. CPEM-managed <br> load balancer .->WCB_CP_Endpoint[Control plane endpoint];
+
+								client1([client])-. MetalLB-managed <br> load balancer <br> anycast .->WCAIngress[Ingress];
+								client1([client])-. MetalLB-managed <br> load balancer <br> anycast .->WCBIngress[Ingress];
+
+								client2([client])-. MetalLB-managed <br> load balancer <br> anycast .->WCAIngress[Ingress];
+								client2([client])-. MetalLB-managed <br> load balancer <br> anycast .->WCBIngress[Ingress];
+							</pre>
+						</div>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h1>WHY</h1>
+						<p>bother ?</p>
+					</section>
+					<section>
+						<ul>
+							<li>Explore the capabilities/claims of currently available tools</li>
+							<li>Code <em>best practices<b>*</b></em></li>
+							<li>Answer to <em>cloud to on premise</em> trend</li>
+						</ul>
+					</section>
+					<section>
+						<h3>Open argument</h3>
+						Number of micro cloud providers emerge. Possibly more is on the way. Their offering
+						closely resembles the responsibilities of Enterprise DevOps/Platform teams, by providing DevOps/Developer Platform as a service.
+						Enterprise DevOps/Platform teams need to provide a similar service to stay relevant.
+					</section>
+				</section>
+				<section>
+					<section>
+						<h1>WHO</h1>
+						<p>is it for ?</p>
+					</section>
+					<section>
+						<ul>
+							<li>Kubernetes administrators</li>
+							<li>know their bottom line workload - Autoscaler on the roadmap</li>
+							<li>Run CI/CD, Repository Manager (Current focus), </li>
+							<li>Developer Platform, backoffice, test farms, AI/ML workloads</li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h1>WHAT</h1>
+						<p>is it made of ?</p>
+					</section>
+					<section>
+						<p>The foundation</p>
+						<ul>
+							<li><a href="https://www.talos.dev/">Talos Linux</a></li>
+							<li>
+								<a href="https://cluster-api.sigs.k8s.io/">CAPI</a> =>
+								<a href="https://github.com/siderolabs/cluster-api-bootstrap-provider-talos">CABPT</a>,
+								<a href="https://github.com/siderolabs/cluster-api-control-plane-provider-talos">CACPPT</a>,
+								<a href="https://github.com/kubernetes-sigs/cluster-api-provider-packet">CAPP</a>,
+								<a href="https://github.com/kubernetes-sigs/cluster-api-provider-packet">CPEM</a>
+							</li>
+							<li><a href="https://cilium.io/">cilium</a></li>
+						</ul>
+					</section>
+					<section>
+						<p>Core applications</p>
+						<ul>
+							<li><a href="https://metallb.universe.tf/">MetalLB</a></li>
+							<li><a href="https://github.com/kubernetes-sigs/external-dns">External DNS</a></li>
+							<li><a href="https://cert-manager.io/">Cert Manager</a></li>
+							<li><a href="https://argoproj.github.io/cd/">ArgoCD</a></li>
+							<li><a href="https://dexidp.io/">Dex IdP</a>, <a href="https://github.com/oauth2-proxy/oauth2-proxy">OAuth2 Proxy</a>, <a href="https://github.com/int128/kubelogin">kubelogin</a></li>
+							<li><a href="https://rook.io/">ROOK</a></li>
+						</ul>
+					</section>
+					<section>
+						<p>Workload examples</p>
+						<ul>
+							<li><a href="https://goharbor.io/">harbor</a></li>
+							<li><a href="https://jfrog.com/artifactory/">artifactory</a> <em>(in progress)</em> </li>
+							<li><a href="https://www.kubeflow.org/">kubeflow</a> <em>(roadmap)</em></li>
+						</ul>
+					</section>
+				</section>
+				<section>
+					<section>
+						<h1>HOW</h1>
+						<p>does it work ?</p>
+					</section>
+					<section>
+						<a href="https://github.com/equinix-labs/talos-on-equinix-metal">gocy.org</a> provides a python
+						<em>installer</em> that orchestrates CAPI, talosctl, kubectl, helm; so that they spin up
+						an interconnected mesh of globally distributed k8s clusters. The installer also generates ArgoCD
+						applications so that the setup is ready for day 2 operations in GitOps mode.
+					</section>
+				</section>
+				<section>
+					Demo
+				</section>
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+		<script src="plugin/mermaid/mermaid.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMermaid ]
+			});
+		</script>
+	</body>
+</html>
